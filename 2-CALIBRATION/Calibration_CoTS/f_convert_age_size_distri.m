@@ -1,0 +1,36 @@
+function SIZE_DISTRI = f_convert_age_size_distri(AGE_DISTRI,season)
+
+SIZE_DISTRI = zeros(1,11);
+
+correct_factor = 1 ;
+
+switch season
+    case 1 % winter
+    
+    SIZE_DISTRI(1) = 0; %AGE_DISTRI(2)/correct_factor;
+    SIZE_DISTRI(2) = AGE_DISTRI(4);
+    SIZE_DISTRI(3) = AGE_DISTRI(6)/2;
+    SIZE_DISTRI(4) = AGE_DISTRI(6)/2;
+    SIZE_DISTRI(5) = AGE_DISTRI(8)/2;
+    SIZE_DISTRI(6) = AGE_DISTRI(8)/2;
+    SIZE_DISTRI(7) = AGE_DISTRI(10)/2;
+    SIZE_DISTRI(8) = AGE_DISTRI(10)/2+AGE_DISTRI(12);
+    SIZE_DISTRI(9) = AGE_DISTRI(14)+AGE_DISTRI(16)/3;
+    SIZE_DISTRI(10) = AGE_DISTRI(16)/3;
+    SIZE_DISTRI(11) = AGE_DISTRI(16)/3;
+    
+case 2 % summer
+    
+    SIZE_DISTRI(1) = (AGE_DISTRI(3)/2)/correct_factor;
+    SIZE_DISTRI(2) = AGE_DISTRI(3)/2+AGE_DISTRI(5)/3;
+    SIZE_DISTRI(3) = AGE_DISTRI(5)/3;
+    SIZE_DISTRI(4) = AGE_DISTRI(5)/3 + AGE_DISTRI(7)/3;
+    SIZE_DISTRI(5) = AGE_DISTRI(7)/3;
+    SIZE_DISTRI(6) = AGE_DISTRI(7)/3 + AGE_DISTRI(9)/2;
+    SIZE_DISTRI(7) = AGE_DISTRI(9)/2 + AGE_DISTRI(11)/2;
+    SIZE_DISTRI(8) = AGE_DISTRI(11)/2 + AGE_DISTRI(13)/2;
+    SIZE_DISTRI(9) = AGE_DISTRI(13)/2 + AGE_DISTRI(15)/3;
+    SIZE_DISTRI(10) = AGE_DISTRI(15)/3;
+    SIZE_DISTRI(11) = AGE_DISTRI(15)/3;
+    
+end
