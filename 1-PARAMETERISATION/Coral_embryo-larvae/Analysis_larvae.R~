@@ -1,0 +1,115 @@
+rm(list=ls())
+library(RSvgDevice)
+
+setwd('/media/STORAGE/1-Work_Australia/49-Water_Quality/DATA/Humanes_larvae')
+
+Erftemeijer = data.frame(SSC=c(6,43,169), NTU=c(4,39,154), REL_FERTILIZATION=c(1, 0.88, 0.75))
+Humphrey = data.frame(SSC=c(0,25,50,100,200), REL_FERTILIZATION=c(1,1.02,1.05,0.83,0.40))
+Humanes = read.table("Humanes_larvae.csv", header=TRUE, sep=",")
+
+# Force to zero relative fertilizaton
+Humanes$REL_FERTILIZATION[Humanes$REL_FERTILIZATION>1]=1
+Humphrey$REL_FERTILIZATION[Humphrey$REL_FERTILIZATION>1]=1
+
+
+
+##############################
+## 1) FERTILIZATION SUCCESS ##
+##############################
+
+## First plot for exploration
+par(mar=c(6,6,2,2), mfrow=c(1,2), pty="m", tck=-0.015, lwd=1, las=1) #mar=c(bottom, left, top, right)’ 
+
+plot(Humanes$SSC,100*Humanes$REL_FERTILIZATION,pch=19,cex=1.5,xlim=c(0,110),ylim=c(0,100), 
+	  xlab='Suspended sediment (mg.L-1)',ylab='Relative fertilization success (%)')
+points(Humphrey$SSC,100*Humphrey$REL_FERTILIZATION)
+points(Erftemeijer$SSC,100*Erftemeijer$REL_FERTILIZATION,col='green')
+
+
+plot(Humanes$SSC,100*Humanes$REL_FERTILIZATION,pch=19,cex=1.5,log='y',xlim=c(0,110),ylim=c(1,100), 
+	  xlab='Suspended sediment (mg.L-1)',ylab='Relative fertilization success (%)')
+	  
+## Test the relationship
+M1 = lm(log(100*Humanes$REL_FERTILIZATION)~ Humanes$SSC)
+
+R2 = summary(M1)$r.squared
+m = round(summary(M1)$coefficients[2],3)
+p = round(summary(M1)$coefficients[1],3)
+
+# log(100*Rel_Fert) = 4.579 - 0.010*SSC
+
+## Plot relationship between deposited sediment and settlement rate 
+devSVG("FIG_fertilization_success.svg", height = 4, width = 8, bg="transparent") # 3inches ~ 6cm
+
+par(mar=c(6,6,2,2), mfrow=c(1,2), pty="m", tck=-0.015, lwd=1, las=1) #mar=c(bottom, left, top, right)’ 
+
+# Plot 1 - model fit
+plot(Humanes$SSC,100*Humanes$REL_FERTILIZATION,log='y',pch=19,cex=1.5,xlim=c(0,100),ylim=c(1,100),
+	xaxt='n',yaxt='n', xlab='Suspended sediment (mg.L-1)',ylab='Relative fertilization success (%)')
+lines(seq(0,100,by=1), exp(m*seq(0,100,by=1)+p),lwd=1.5)
+
+axis(1,lwd=0,lwd.ticks=1,line=NA,las = 1)
+axis(2,lwd=0,lwd.ticks=1,line=NA,las = 1)
+
+# Plot 2 - non-transformed data with model exptrapolation
+plot(Humanes$SSC,100*Humanes$REL_FERTILIZATION,pch=19,cex=1.5,xlim=c(0,120),ylim=c(0,100),
+      xaxt='n',yaxt='n', xlab='Suspended sediment (mg.L-1)',ylab='Relative fertilization success (%)')
+lines(seq(0,120,by=1), exp(m*seq(0,120,by=1)+p),lwd=1.5)
+
+axis(1,lwd=0,lwd.ticks=1,line=NA,las = 1)
+axis(2,lwd=0,lwd.ticks=1,line=NA,las = 1)
+
+dev.off()
+
+
+##############################
+## 1) SETLLEMENT RATE       ##
+##############################
+
+## First plot for exploration
+
+select = which(Humanes$TREATMENT=="NH_TL")
+
+par(mar=c(6,6,2,2), mfrow=c(1,2), pty="m", tck=-0.015, lwd=1, las=1) #mar=c(bottom, left, top, right)’ 
+
+plot(Humanes$SSC[-select],100*Humanes$REL_SETTLEMENT[-select],pch=19,cex=1.5,xlim=c(0,110),ylim=c(0,100), 
+	  xlab='Suspended sediment (mg.L-1)',ylab='Relative fertilization success (%)')
+
+plot(Humanes$SSC[-select],100*Humanes$REL_SETTLEMENT[-select],pch=19,cex=1.5,log='y',xlim=c(1,110),ylim=c(1,100), 
+	  xlab='Suspended sediment (mg.L-1)',ylab='Relative fertilization success (%)')
+	  
+plot(Humanes$SSC[-select]+1,100*Humanes$REL_SETTLEMENT[-select],pch=19,cex=1.5,log='x',xlim=c(1,110),ylim=c(1,100), 
+	  xlab='Suspended sediment (mg.L-1)',ylab='Relative fertilization success (%)')
+	  
+## Test the relationship
+M1 = lm(100*Humanes$REL_SETTLEMENT[-select]~ log(Humanes$SSC[-select]+1))
+
+R2 = summary(M1)$r.squared
+m = round(summary(M1)$coefficients[2],3)
+p = round(summary(M1)$coefficients[1],3)
+
+# 100*Rel_Settl) = 99.571 - 10.637*log(SSC+1)
+
+## Plot relationship between deposited sediment and settlement rate 
+devSVG("FIG_settlement.svg", height = 4, width = 8, bg="transparent") # 3inches ~ 6cm
+
+par(mar=c(6,6,2,2), mfrow=c(1,2), pty="m", tck=-0.015, lwd=1, las=1) #mar=c(bottom, left, top, right)’ 
+
+# Plot 1 - model fit
+plot(Humanes$SSC[-select]+1,100*Humanes$REL_SETTLEMENT[-select],log='x',pch=19,cex=1.5,xlim=c(1,100),ylim=c(0,100),
+	xaxt='n',yaxt='n', xlab='Suspended sediment (mg.L-1)',ylab='Relative settlement (%)')
+lines(seq(0,100,by=1)+1, m*(log(seq(0,100,by=1)+1))+p,lwd=1.5)
+
+axis(1,lwd=0,lwd.ticks=1,line=NA,las = 1)
+axis(2,lwd=0,lwd.ticks=1,line=NA,las = 1)
+
+# Plot 2 - non-transformed data with model exptrapolation
+plot(Humanes$SSC[-select]+1,100*Humanes$REL_SETTLEMENT[-select],pch=19,cex=1.5,xlim=c(0,120),ylim=c(0,100),
+      xaxt='n',yaxt='n', xlab='Suspended sediment (mg.L-1)',ylab='Relative settlement (%)')
+lines(seq(0,120,by=1)+1, m*(log(seq(0,120,by=1)+1))+p,lwd=1.5)
+
+axis(1,lwd=0,lwd.ticks=1,line=NA,las = 1)
+axis(2,lwd=0,lwd.ticks=1,line=NA,las = 1)
+
+dev.off()
+
