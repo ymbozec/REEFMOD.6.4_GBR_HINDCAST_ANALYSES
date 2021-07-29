@@ -1,0 +1,98 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+hfig = figure;
+width=1200; height=1000; set(hfig,'color','w','units','points','position',[0,0,width,height])
+set(hfig, 'Resize', 'off')
+
+regionlabel={'Northern  ' ; 'Central  ' ; 'Southern  '};
+shelflabel = {'inshore';'mid-shelf';'outer-shelf'};
+
+Xmin = -60;
+Xmax = 60;
+Ymax = zeros(1,9);
+TitleFontSize = 14;
+LabelFontSize = 9;
+AxisFontSize = 8;
+
+% hh = tight_subplot(3,3,[0.025 0.1],0.08,0.1);
+hh = tight_subplot(3,3,[0.03 0.02],0.1,0.13);
+
+count = 0;
+offset = 0;
+ColorBars = rgb('Palegreen');
+ColorRect = rgb('Gainsboro');
+ColorRect = rgb('LightBlue');
+
+lwidth = 1.5;
+
+bins = [-60:10:60];
+
+for region=1:3
+    
+    for shelf=1:3
+        
+        count = count+1;
+        myselect2 = ALL_REEFS_STAT(ALL_REEFS_STAT.AIMS_SHELF==shelf & ALL_REEFS_STAT.REGION==region,:);
+        
+        axes(hh(count));
+        
+        Htmp = histogram(myselect2.MEAN_DEVIANCE,bins); hold on
+        Ymax(count) = max(Htmp.Values)+2;
+
+        rectangle('Position',[Xmin 0 Xmax Ymax(count)], 'FaceColor', ColorRect,'EdgeColor','none')
+        Htmp = histogram(myselect2.MEAN_DEVIANCE,bins);
+        Htmp.FaceColor = ColorBars;
+        axis([Xmin Xmax 0 Ymax(count)])
+        
+        nb_reefs = length(unique(myselect2.REEF_ID));
+        rectangle('Position',[Xmin 0 2*Xmax Ymax(count)], 'FaceColor', 'none','EdgeColor','black')
+        set(gca, 'FontName','Arial','Box','on')
+        text(-54, Ymax(count)-0.1*Ymax(count), ['n = ' num2str(nb_reefs) ' reefs'],'FontName','Arial', 'FontSize',AxisFontSize+1)
+        
+        
+    end
+end
+
+for j=[7 8 9]   
+    hh(j).XLabel.String={'';'Mean model error';'(percent coral cover)'};
+    hh(j).XLabel.FontSize=14;
+    hh(j).XLabel.FontName='Arial';
+end
+
+for j=[1:9]
+    hh(j).XTick = [-50:10:50]
+    hh(j).XTickLabel = num2cell(hh(j).XTick);
+    hh(j).XLabel.FontSize=10;
+    hh(j).XLabel.FontName='Arial';
+end
+
+% Insert region subtitles
+for j=[1 2 3]
+    hh(j).Title.String={shelflabel{j},''};
+    hh(j).Title.FontSize=16;
+    hh(j).Title.FontWeight='bold';
+end
+
+% insert Y axis label
+count2 = 0;
+for j=[1 4 7]
+    count2 = count2+1;
+    hh(j).YLabel.String={'Number of reefs \times years','';
+    hh(j).YLabel.FontSize=14;
+    hh(j).YLabel.FontName='Arial';
+    
+end
+
+count2 = 0;
+for j=[3 6 9]
+    count2 = count2+1;
+    hh(j).YLabel.String=regionlabel{count2};
+    hh(j).YLabel.FontSize=16;
+    hh(j).YLabel.FontWeight='bold';
+    hh(j).YLabel.Rotation=0;
+    hh(j).YLabel.HorizontalAlignment = 'left';
+    pos = hh(j).YLabel.Position;
+    hh(j).YLabel.Position = [70 pos(2) pos(3)];
+end
+
+
+
